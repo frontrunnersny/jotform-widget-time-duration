@@ -15,6 +15,14 @@
       JFCustomWidget.subscribe('ready', function () {
         var label = JFCustomWidget.getWidgetSetting('QuestionLabel')
         document.getElementById('labelText').innerHTML = label
+
+        document.getElementById('userInput').addEventListener('change', function () {
+            JFCustomWidget.sendData({
+                valid: true,
+                value: document.getElementById('userInput').value
+            });
+        })
+
         //subscribe to form submit event
         JFCustomWidget.subscribe('submit', function () {
           var msg = {
