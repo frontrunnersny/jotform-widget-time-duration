@@ -18,7 +18,8 @@
 
         document.getElementById('userInput').addEventListener('change', function () {
             JFCustomWidget.sendData({
-                valid: true,
+                valid: document.getElementById('userInput').value !== '1',
+                // valid: true,
                 value: document.getElementById('userInput').value
             });
         })
@@ -28,7 +29,8 @@
           var msg = {
             //you should valid attribute to data for JotForm
             //to be able to use youw widget as required
-            valid: true,
+            valid: document.getElementById('userInput').value !== '1',
+            // valid: true,
             value: document.getElementById('userInput').value,
           }
           // send value to JotForm
