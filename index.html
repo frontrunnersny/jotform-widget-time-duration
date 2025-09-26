@@ -52,7 +52,7 @@
             type="text"
             id="hours"
             name="hours"
-            maxlength="2"
+            maxlength="3"
             inputmode="numeric"
           />
         </label>
@@ -101,7 +101,7 @@
           prevValue = value
         }
 
-        validate(e.target.name, value)
+        validateField(e.target.name, value)
       })
 
       form.addEventListener('focusout', (e) => {
@@ -112,7 +112,14 @@
           target.value = '00'
         }
 
-        JFCustomWidget.setWidgetValidity(validationErrors.size == 0)
+        validateField(target.name, target.value)
+
+        if (validationErrors.size == 0) {
+          JFCustomWidget.sendData({
+            valid: true,
+            value: buildDurationValue(),
+          })
+        }
       })
 
       function allFieldsEmpty() {
@@ -128,34 +135,39 @@
         }
       })
 
-      function validate(fieldName, value) {
-        if (value != '' && parseInt(value) > 59) {
+      function validateField(fieldName, value) {
+        if (value != '' && fieldName != 'hours' && parseInt(value) > 59) {
           const errMsg = `Invalid value for ${fieldName}`
           validationErrors.set(fieldName, errMsg)
-          errorsContainer.innerHTML = errMsg
-        } else if (validationErrors.has(fieldName)) {
+        } else {
           validationErrors.delete(fieldName)
-          if (validationErrors.size === 0) {
-            errorsContainer.innerHTML = ''
-          } else {
-            errorsContainer.innerHTML = [...validationErrors.values()][0]
-          }
+        }
+        renderValidationResult()
+      }
+
+      function renderValidationResult() {
+        if (validationErrors.size === 0) {
+          errorsContainer.innerHTML = ''
+        } else {
+          // show the first error
+          errorsContainer.innerHTML = [...validationErrors.values()][0]
         }
       }
 
-      JFCustomWidget.subscribe('ready', () => {
-        // subscribe to form submit event
-        JFCustomWidget.subscribe('submit', () => {
-          const durationValue = [...new FormData(form).values()]
-            .map((val) => val || '00')
-            .join(':')
-          // console.log('durationValue', durationValue)
+      function buildDurationValue() {
+        return allFieldsEmpty()
+          ? ''
+          : [...new FormData(form).values()].map((val) => val || '00').join(':')
+      }
 
-          // send value to JotForm
-          JFCustomWidget.sendSubmit({
-            valid: validationErrors.size == 0,
-            value: durationValue,
-          })
+      // subscribe to form submit event
+      JFCustomWidget.subscribe('submit', () => {
+        const durationValue = buildDurationValue()
+
+        // send value to JotForm
+        JFCustomWidget.sendSubmit({
+          valid: validationErrors.size == 0,
+          value: durationValue,
         })
       })
     </script>
